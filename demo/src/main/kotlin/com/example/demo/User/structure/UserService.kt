@@ -1,13 +1,20 @@
 package com.example.demo.User.structure
 
 import org.springframework.stereotype.Service
+import java.util.Optional
 
 @Service
 class UserService(private val userRepository: UserRepository) {
 
-    fun createUser(username: String, uid: String) : User {
-        val user: User = User(username = username, uid = uid)
+    fun createUser(uid: String): User {
+        return userRepository.save(User(uid = uid))
+    }
 
-        return userRepository.save(user)
+    fun doesUserExist(uid: String): Boolean {
+        return userRepository.findByUid(uid) != null
+    }
+
+    fun getUser(uid: String): Optional<User> {
+        return Optional.ofNullable(userRepository.findByUid(uid))
     }
 }
