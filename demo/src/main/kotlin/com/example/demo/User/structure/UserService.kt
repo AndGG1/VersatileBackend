@@ -17,4 +17,8 @@ class UserService(private val userRepository: UserRepository) {
     fun getUser(uid: String): Optional<User> {
         return Optional.ofNullable(userRepository.findByUid(uid))
     }
+
+    fun removeUser(uid: String) {
+        userRepository.delete(getUser(uid).get())
+    }
 }

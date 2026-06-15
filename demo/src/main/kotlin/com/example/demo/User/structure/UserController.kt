@@ -1,6 +1,7 @@
 package com.example.demo.User.structure
 
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -14,7 +15,7 @@ data class UserRequest(val uid: String)
 data class UserResponse(val generatedKey: String, val timeCreated: Instant)
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/versatile_api/users")
 class UserController(private val userService: UserService) {
 
     @PostMapping
@@ -50,5 +51,10 @@ class UserController(private val userService: UserService) {
 
         response.status = HttpServletResponse.SC_NOT_FOUND
         return null
+    }
+
+    @DeleteMapping
+    fun removeUser(@RequestBody request: UserRequest) {
+        userService.removeUser(request.uid)
     }
 }
