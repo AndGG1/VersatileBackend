@@ -19,6 +19,11 @@ repositories {
 }
 
 dependencies {
+	implementation("io.qdrant:client:1.11.0")
+	implementation("io.grpc:grpc-stub:1.62.2")
+	implementation("io.grpc:grpc-protobuf:1.62.2")
+	implementation("io.grpc:grpc-netty-shaded:1.62.2")
+
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 	implementation("org.springframework.boot:spring-boot-starter-security")
