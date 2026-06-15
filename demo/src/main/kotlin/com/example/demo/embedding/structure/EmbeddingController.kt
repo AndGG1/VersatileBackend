@@ -14,7 +14,7 @@ data class EmbedResponse(
 )
 
 @RestController
-@RequestMapping("/embeddings")
+@RequestMapping("/versatile_api/embeddings")
 class EmbeddingController(private val embeddingService: EmbeddingService) {
 
     @PostMapping

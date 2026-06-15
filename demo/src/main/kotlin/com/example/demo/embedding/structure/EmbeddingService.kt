@@ -1,5 +1,6 @@
 package com.example.demo.embedding.structure
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -9,19 +10,29 @@ import org.springframework.web.client.RestClient
 class EmbeddingService {
 
     private val client = RestClient.create()
-    private val HF_TOKEN = "token"
-    private val HF_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction"
+    @Value("\${hf.api.token}")
+    private lateinit var HF_TOKEN: String
+
+    private val HF_URL = "https://router.huggingface.co/hf-inference/models/dumitrescustefan/bert-base-romanian-cased-v1/pipeline/feature-extraction"
 
     fun embed(inputs: List<String>): EmbedResponse {
-        return EmbedResponse(
-            client.post()
+        val requestBody = mapOf(
+            "inputs" to inputs,
+            "parameters" to mapOf("wait_for_model" to true)
+        )
+
+        val response = client.post()
             .uri(HF_URL)
             .header("Authorization", "Bearer $HF_TOKEN")
             .contentType(MediaType.APPLICATION_JSON)
-            .body(mapOf("inputs" to inputs))
+            .body(requestBody)
             .retrieve()
-            .body(object : ParameterizedTypeReference<List<List<Double>>>() {})
-            ?: emptyList()
-        )
+            .body(object : ParameterizedTypeReference<List<List<List<Double>>>>() {})
+
+        val processedEmbeddings = response?.map { textTokens ->
+            textTokens.firstOrNull() ?: emptyList()
+        } ?: emptyList()
+
+        return EmbedResponse(processedEmbeddings)
     }
 }
