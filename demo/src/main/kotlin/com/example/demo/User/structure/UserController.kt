@@ -31,7 +31,7 @@ class UserController(private val userService: UserService) {
         }
 
         response.status = HttpServletResponse.SC_FOUND
-        return null;
+        return null
     }
 
     @GetMapping

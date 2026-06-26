@@ -6,8 +6,11 @@ import java.util.Optional
 @Service
 class UserService(private val userRepository: UserRepository) {
 
-    fun createUser(uid: String): User {
-        return userRepository.save(User(uid = uid))
+    fun createUser(uid: String): User? {
+        if (uid.isNotEmpty() && uid.isNotBlank()) {
+            return userRepository.save(User(uid = uid))
+
+        } else return null
     }
 
     fun doesUserExist(uid: String): Boolean {
@@ -19,6 +22,10 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     fun removeUser(uid: String) {
-        userRepository.delete(getUser(uid).get())
+        val optionalUser: Optional<User> = getUser(uid)
+
+        if (optionalUser.isPresent) {
+            userRepository.delete(optionalUser.get())
+        }
     }
 }
