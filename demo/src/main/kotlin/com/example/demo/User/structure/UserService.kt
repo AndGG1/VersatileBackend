@@ -1,31 +1,62 @@
-package com.example.demo.User.structure
+package com.example.demo.User.structure;
 
+import com.example.demo.User.structure.errorHandlers.decideWhatToThrow
 import org.springframework.stereotype.Service
 import java.util.Optional
 
 @Service
 class UserService(private val userRepository: UserRepository) {
 
-    fun createUser(uid: String): User? {
-        if (uid.isNotEmpty() && uid.isNotBlank()) {
-            return userRepository.save(User(uid = uid))
+    fun createUser(uid: String): User {
+        var res: User? = null
+        try {
+            if (uid.isBlank() || !uid.matches(Regex("^[A-Za-z0-9+/_-]{28}$"))) {
+                throw IllegalArgumentException()
+            }
+            res = userRepository.save(User(uid = uid))
 
-        } else return null
+        } catch (e: Exception) {
+            decideWhatToThrow(e)
+        }
+
+        if (res == null) throw NullPointerException()
+        return res
     }
 
     fun doesUserExist(uid: String): Boolean {
-        return userRepository.findByUid(uid) != null
+        var res: Boolean? = null
+        try {
+            res = userRepository.findByUid(uid) != null
+        } catch (e: Exception) {
+            decideWhatToThrow(e)
+        }
+
+        if (res == null) throw NullPointerException()
+        return res
     }
 
     fun getUser(uid: String): Optional<User> {
-        return Optional.ofNullable(userRepository.findByUid(uid))
+        var res: Optional<User>? = null
+        try {
+            res = Optional.ofNullable(userRepository.findByUid(uid))
+        } catch (e: Exception) {
+            decideWhatToThrow(e)
+        }
+
+        if (res == null) throw NullPointerException()
+        return res
     }
 
     fun removeUser(uid: String) {
-        val optionalUser: Optional<User> = getUser(uid)
+        try {
+            if (uid.isBlank()) throw IllegalArgumentException()
+            val optionalUser: Optional<User> = getUser(uid)
 
-        if (optionalUser.isPresent) {
-            userRepository.delete(optionalUser.get())
+            if (optionalUser.isPresent) {
+                userRepository.delete(optionalUser.get())
+            }
+        } catch (e: Exception) {
+            decideWhatToThrow(e)
         }
     }
 }

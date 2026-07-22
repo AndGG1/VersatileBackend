@@ -19,6 +19,9 @@ class EmbeddingController(private val embeddingService: EmbeddingService) {
 
     @PostMapping
     fun convertToVectors(@RequestBody request: EmbedRequest) : EmbedResponse {
-        return embeddingService.embed(request.inputs)
+        require(request.inputs.isNotEmpty()) {"API requires non-empty list of sentences!"}
+
+        val filteredInputs = request.inputs.filter { s -> s.isNotBlank() }
+        return embeddingService.embed(filteredInputs)
     }
 }

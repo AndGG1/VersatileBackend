@@ -28,7 +28,7 @@ public class UserServiceTesting {
     private UserService userService;
 
     @Test
-    public void test_CreateUser_Valid() {
+    public void test_CreateUser() {
         // Arrange
         String uid = "default_id";
         User expectedUser = new User("id", "key", uid, Instant.now());
@@ -43,19 +43,6 @@ public class UserServiceTesting {
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.argThat(user ->
                 user.getUid().equals(uid)
         ));
-    }
-
-    @Test
-    public void test_CreateUser_Invalid() {
-        //Arrange
-        String invalidUid = "";
-
-        //Act
-        User newUser = userService.createUser(invalidUid);
-
-        //Assert
-        Assertions.assertThat(newUser).isNull();
-        Mockito.verifyNoInteractions(userRepository);
     }
 
     @Test

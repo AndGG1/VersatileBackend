@@ -4,6 +4,7 @@ import com.example.demo.User.structure.User;
 import com.example.demo.User.structure.UserController;
 import com.example.demo.User.structure.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,6 +77,17 @@ public class UserControllerTesting {
         result.andExpect(status().isNotFound());
     }
 
+    @Test
+    public void test_GETMethod_ErrorCase() {
+        //Arrange
+        Mockito.when(userService.getUser(Mockito.any(String.class))).thenCallRealMethod();
+
+        //Act & Assert
+        assertThrows(ServletException.class, () -> {
+            mockMvc.perform(get("/versatile_api/users").param("uid", ""));
+        });
+    }
+
 
     @Test
     public void test_POSTMethod_PositiveCase() throws Exception {
@@ -124,6 +137,22 @@ public class UserControllerTesting {
         result.andExpect(status().isFound());
     }
 
+    @Test
+    public void test_POSTMethod_ErrorCase() {
+        //Arrange
+        Mockito.when(userService.doesUserExist(Mockito.any(String.class))).thenCallRealMethod();
+
+        //Act & Assert
+        assertThrows(ServletException.class, () -> {
+            mockMvc.perform(post("/versatile_api/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "uid": ""
+                        }"""));
+        });
+    }
+
 
     @Test
     public void test_DELETEMethod_PositiveCase() throws Exception {
@@ -139,5 +168,21 @@ public class UserControllerTesting {
 
         //Assert
         result.andExpect(status().isOk());
+    }
+
+    @Test
+    public void test_DELETEMethod_ErrorCase() {
+        //Arrange
+        Mockito.doCallRealMethod().when(userService).removeUser(Mockito.any(String.class));
+
+        //Act & Assert
+        assertThrows(ServletException.class, () -> {
+            mockMvc.perform(delete("/versatile_api/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "uid": ""
+                        }"""));
+        });
     }
 }

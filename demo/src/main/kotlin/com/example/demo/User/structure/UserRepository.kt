@@ -1,4 +1,4 @@
-package com.example.demo.User.structure
+package com.example.demo.User.structure;
 
 import org.springframework.data.mongodb.repository.MongoRepository
 

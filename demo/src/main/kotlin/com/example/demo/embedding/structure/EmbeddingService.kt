@@ -1,5 +1,6 @@
 package com.example.demo.embedding.structure
 
+import com.example.demo.embedding.structure.errorHandlers.ServiceResponseErrorHandlerKt
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
@@ -7,9 +8,10 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 
 @Service
-class EmbeddingService {
+class EmbeddingService(restClientBuilder: RestClient.Builder, serviceResponseErrorHandler: ServiceResponseErrorHandlerKt) {
+    private val client = restClientBuilder.build()
 
-    private val client = RestClient.create()
+    private val errorHandler = serviceResponseErrorHandler
     @Value("\${hf.api.token}")
     private lateinit var HF_TOKEN: String
 
@@ -27,6 +29,7 @@ class EmbeddingService {
             .contentType(MediaType.APPLICATION_JSON)
             .body(requestBody)
             .retrieve()
+            .onStatus(errorHandler)
             .body(object : ParameterizedTypeReference<List<List<List<Double>>>>() {})
 
         val processedEmbeddings = response?.map { textTokens ->

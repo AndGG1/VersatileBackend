@@ -7,9 +7,9 @@ import io.qdrant.client.grpc.Points
 import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutionException
 
-
+//TODO: Redo!!!
 @Service
-class   UtilityService(private val embeddingService: EmbeddingService, private val config: GetCollectionConfig, private val clientGenerator: QdrantClientGenerator) {
+class UtilityService(private val embeddingService: EmbeddingService, private val config: GetCollectionConfig, private val clientGenerator: QdrantClientGenerator) {
 
     fun findSimilarVectors(semRepresentation: String, limit: Int, collectionName: String): List<String> {
         val collectionInfo = try {
