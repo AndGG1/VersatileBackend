@@ -1,6 +1,6 @@
 package com.example.demo.ExceptionsTesting;
 
-import com.example.demo.User.structure.User;
+import com.example.demo.buisnessUsage.users.structure.User;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -19,6 +19,9 @@ repositories {
 }
 
 dependencies {
+	//Redis Starters
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
 	//Reactive Streams
 //	implementation("org.reactivestreams:reactive-streams")
 //	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")

@@ -1,8 +1,8 @@
 package com.example.demo.ServiceTesting;
 
-import com.example.demo.User.structure.User;
-import com.example.demo.User.structure.UserRepository;
-import com.example.demo.User.structure.UserService;
+import com.example.demo.buisnessUsage.users.structure.User;
+import com.example.demo.buisnessUsage.users.structure.UserRepository;
+import com.example.demo.buisnessUsage.users.structure.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

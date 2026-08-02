@@ -1,8 +1,8 @@
 package com.example.demo.ControllerTesting;
 
-import com.example.demo.User.structure.User;
-import com.example.demo.User.structure.UserController;
-import com.example.demo.User.structure.UserService;
+import com.example.demo.buisnessUsage.users.structure.User;
+import com.example.demo.buisnessUsage.users.structure.UserController;
+import com.example.demo.buisnessUsage.users.structure.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;

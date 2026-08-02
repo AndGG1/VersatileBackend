@@ -1,8 +1,8 @@
 package com.example.demo.ServiceTesting;
 
-import com.example.demo.embedding.structure.EmbedResponse;
-import com.example.demo.embedding.structure.EmbeddingService;
-import com.example.demo.embedding.structure.errorHandlers.ServiceResponseErrorHandlerKt;
+import com.example.demo.buisnessUsage.embeddings.structure.EmbedResponse;
+import com.example.demo.buisnessUsage.embeddings.structure.EmbeddingService;
+import com.example.demo.buisnessUsage.embeddings.errorHandlers.ServiceResponseErrorHandlerKt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

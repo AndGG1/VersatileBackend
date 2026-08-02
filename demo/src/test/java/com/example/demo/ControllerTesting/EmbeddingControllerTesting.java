@@ -1,8 +1,8 @@
 package com.example.demo.ControllerTesting;
 
-import com.example.demo.embedding.structure.EmbedResponse;
-import com.example.demo.embedding.structure.EmbeddingController;
-import com.example.demo.embedding.structure.EmbeddingService;
+import com.example.demo.buisnessUsage.embeddings.structure.EmbedResponse;
+import com.example.demo.buisnessUsage.embeddings.structure.EmbeddingController;
+import com.example.demo.buisnessUsage.embeddings.structure.EmbeddingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;

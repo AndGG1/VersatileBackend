@@ -1,7 +1,7 @@
 package com.example.demo.RepositoryTesting;
 
-import com.example.demo.User.structure.User;
-import com.example.demo.User.structure.UserRepository;
+import com.example.demo.buisnessUsage.users.structure.User;
+import com.example.demo.buisnessUsage.users.structure.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
