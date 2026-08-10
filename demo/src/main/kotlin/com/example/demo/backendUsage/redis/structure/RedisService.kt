@@ -33,6 +33,14 @@ class RedisService(private val redisRepository: RedisRepository) {
         return res
     }
 
+    fun getCurrentActiveShard(): ShardData? {
+        for (shardId in 0..2) {
+            val shard = getShard("" + shardId)
+            if (shard?.isAvailable == true) return shard
+        }
+        return null
+    }
+
     fun removeShard(shardId: String) {
         try {
             redisRepository.delete(shardId)

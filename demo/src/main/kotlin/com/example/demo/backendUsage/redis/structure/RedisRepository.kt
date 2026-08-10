@@ -1,13 +1,21 @@
 package com.example.demo.backendUsage.redis.structure
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
+import java.io.Serializable
+import com.fasterxml.jackson.annotation.JsonProperty
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ShardData(
-    val clusterUrl: String,
-    val apiKey: String,
-    val isAvailable: Boolean
-)
+    @JsonProperty("clusterUrl") val clusterUrl: String,
+
+    @JsonProperty("apiKey") val apiKey: String,
+
+    @get:JsonProperty("isAvailable")
+    @param:JsonProperty("isAvailable")
+    val isAvailable: Boolean = true
+) : Serializable
 
 @Repository
 class RedisRepository(private val redisTemplate: RedisTemplate<String, Any>) {
@@ -16,6 +24,7 @@ class RedisRepository(private val redisTemplate: RedisTemplate<String, Any>) {
     private val HASH_KEY: String = "column_1"
 
     fun save(parseShard: ParseShard) {
+        println("saved")
         val key = "$HASH_KEY:${parseShard.shardId}"
         val value = ShardData(
             parseShard.clusterUrl,
@@ -27,16 +36,10 @@ class RedisRepository(private val redisTemplate: RedisTemplate<String, Any>) {
     }
 
     fun findById(shardId: String): ShardData? {
+        println("looked for $shardId")
         val key = "$HASH_KEY:$shardId"
-        val entries = redisTemplate.opsForHash<String, ShardData>().entries(key)
 
-        if (entries.isEmpty()) return null
-
-        return ShardData(
-            clusterUrl = (entries["clusterUrl"] ?: "") as String,
-            apiKey = (entries["apiKey"] ?: "") as String,
-            isAvailable = (entries["isAvailable"] ?: true) as Boolean
-        )
+        return redisTemplate.opsForHash<String, ShardData>().get(key, HASH_KEY)
     }
 
     fun delete(shardId: String) {
