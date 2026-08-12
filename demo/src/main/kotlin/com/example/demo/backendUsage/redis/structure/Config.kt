@@ -39,10 +39,13 @@ class RedisConfig {
         }
 
         val poolConfig = JedisPoolConfig().apply {
-            maxTotal = 1
-            maxIdle = 1
-            minIdle = 1
+            maxTotal = 5
+            maxIdle = 5
+            minIdle = 2
+
             testOnBorrow = true
+            testWhileIdle = true
+            timeBetweenEvictionRuns = Duration.ofSeconds(3)
         }
 
         val clientConfigBuilder = JedisClientConfiguration.builder()

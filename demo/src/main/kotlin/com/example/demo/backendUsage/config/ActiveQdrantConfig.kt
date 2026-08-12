@@ -3,6 +3,7 @@ package com.example.demo.backendUsage.config
 import io.qdrant.client.QdrantClient
 import io.qdrant.client.QdrantGrpcClient
 import org.springframework.stereotype.Component
+import java.time.Duration
 
 @Component
 class ActiveQdrantConfig {
@@ -16,8 +17,6 @@ class ActiveQdrantConfig {
 
 
     fun getCurrentClient() : QdrantClient {
-        println(currentUrl)
-        println(currentApi)
         if (currQdrantClient == null) {
             throw NullPointerException()
         }
@@ -34,6 +33,7 @@ class ActiveQdrantConfig {
                     6334,
                     true)
                     .withApiKey(newApi)
+                    .withTimeout(Duration.ofSeconds(10))
                     .build()
             )
             currentUrl = newUrl

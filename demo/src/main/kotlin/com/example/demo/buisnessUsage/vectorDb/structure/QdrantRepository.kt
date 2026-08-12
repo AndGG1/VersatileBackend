@@ -9,10 +9,11 @@ import kotlinx.coroutines.guava.await
 import org.springframework.stereotype.Repository
 
 @Repository
-class QdrantRepository(private val vectorClient: VectorClient) {
+class QdrantRepository(private val vectorClient: VectorClient,
+    private val getAllVectorClients: List<QdrantClientConfig>) {
 
     fun save(pointRequest: QdrantPointRequest) {
-        val getVectorClient = vectorClient.getVectorClient()
+        val getVectorClient = vectorClient.getCurrentVectorClient()
 
         val vectorUnit = Points.Vectors.newBuilder()
             .setVector(
@@ -39,51 +40,57 @@ class QdrantRepository(private val vectorClient: VectorClient) {
     }
 
 
-    suspend fun getAll(uid: String): Points.ScrollResponse? {
-        val getVectorClient = vectorClient.getVectorClient()
+    suspend fun getAll(uid: String): List<Points.ScrollResponse?> {
+        val res = getAllVectorClients.map { clientConfig ->
+            clientConfig.client
+                .scrollAsync(
+                    Points.ScrollPoints.newBuilder()
+                        .setCollectionName(clientConfig.collectionName)
+                        .setFilter(
+                            Points.Filter.newBuilder()
+                                .addMust(matchKeyword("uid", uid))
+                                .build()
+                        )
+                        .setLimit(1)
+                        .setWithPayload(enable(true))
+                        .build()
+                )
+        }
 
-        return getVectorClient.client
-            .scrollAsync(
-                Points.ScrollPoints.newBuilder()
-                    .setCollectionName(getVectorClient.collectionName)
-                    .setFilter(
-                        Points.Filter.newBuilder()
-                            .addMust(matchKeyword("uid", uid))
-                            .build()
-                    )
-                    .setLimit(1)
-                    .setWithPayload(enable(true))
-                    .build())
-            .await()
+        return res.map { it.await() }
     }
 
-    suspend fun getOneOrMore(payloadRequest: CollectionPayload) : Points.ScrollResponse? {
-        val getVectorClient = vectorClient.getVectorClient()
+    suspend fun getOneOrMore(payloadRequest: CollectionPayload) : List<Points.ScrollResponse?> {
+        val res = getAllVectorClients.map { clientConfig ->
+            clientConfig.client
+                .scrollAsync(
+                    Points.ScrollPoints.newBuilder()
+                        .setCollectionName(clientConfig.collectionName)
+                        .setFilter(
+                            Points.Filter.newBuilder()
+                                .addMust(matchKeyword("uid", payloadRequest.uid))
+                                .addMust(matchKeyword("product_name", payloadRequest.productName))
+                                .build()
+                        )
+                        .setLimit(1)
+                        .setWithPayload(enable(true))
+                        .build()
+                )
+        }
 
-        return getVectorClient.client
-            .scrollAsync(
-                Points.ScrollPoints.newBuilder()
-                    .setCollectionName(getVectorClient.collectionName)
-                    .setFilter(
-                        Points.Filter.newBuilder()
-                            .addMust(matchKeyword("uid", payloadRequest.uid))
-                            .addMust(matchKeyword("product_name", payloadRequest.productName))
-                            .build()
-                    )
-                    .setLimit(1)
-                    .setWithPayload(enable(true))
-                    .build())
-            .await()
+        return res.map { it.await()}
     }
 
-    suspend fun deleteAll(uid: String): Points.UpdateResult? {
-        val getVectorClient = vectorClient.getVectorClient()
-
-        return getVectorClient.client.deleteAsync(
-            getVectorClient.collectionName,
+    suspend fun deleteAll(uid: String): List<Points.UpdateResult?> {
+        val res = getAllVectorClients.map { clientConfig ->
+            clientConfig.client.deleteAsync(
+                clientConfig.collectionName,
             Points.Filter.newBuilder()
                 .addMust(matchKeyword("uid", uid))
                 .build()
-        ).await()
+            )
+        }
+
+        return res.map { it.await() }
     }
 }

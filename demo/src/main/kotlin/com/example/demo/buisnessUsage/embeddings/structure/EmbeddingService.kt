@@ -7,6 +7,10 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 
+data class EmbedResponse(
+    val embeddings: List<List<Double>>
+)
+
 @Service
 class EmbeddingService(restClientBuilder: RestClient.Builder, serviceResponseErrorHandler: ServiceResponseErrorHandlerKt) {
     private val client = restClientBuilder.build()
@@ -15,7 +19,8 @@ class EmbeddingService(restClientBuilder: RestClient.Builder, serviceResponseErr
     @Value("\${hf.api.token}")
     private lateinit var HF_TOKEN: String
 
-    private val HF_URL = "https://router.huggingface.co/hf-inference/models/dumitrescustefan/bert-base-romanian-cased-v1/pipeline/feature-extraction"
+    @Value("\${hf.url}")
+    private lateinit var HF_URL: String
 
     fun embed(inputs: List<String>): EmbedResponse {
         val requestBody = mapOf(

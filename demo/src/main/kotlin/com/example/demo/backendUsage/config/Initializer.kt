@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class Initializer(private val redisService: RedisService,
                   private val intervalTask: IntervalTask) : ApplicationRunner {
+
     @Value("\${qdrant.api.tokens}")
     private val apiKeys: String? = null
 

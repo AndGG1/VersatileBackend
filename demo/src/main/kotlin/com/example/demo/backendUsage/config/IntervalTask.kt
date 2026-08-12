@@ -22,8 +22,6 @@ class IntervalTask(
     }
 
     fun runAtFixedRate() {
-        println("ran")
-
         for (cluster in 0 .. 2) {
 
             val shardId = "" + cluster

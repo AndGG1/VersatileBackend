@@ -34,11 +34,18 @@ class RedisService(private val redisRepository: RedisRepository) {
     }
 
     fun getCurrentActiveShard(): ShardData? {
-        for (shardId in 0..2) {
-            val shard = getShard("" + shardId)
-            if (shard?.isAvailable == true) return shard
+        var res: ShardData? = null
+        try {
+            for (shardId in 0..2) {
+                val shard = getShard("" + shardId)
+                if (shard?.isAvailable == true) res = shard
+            }
+        } catch (e: Exception) {
+            decideWhatToThrowRedis(e)
         }
-        return null
+
+        if (res == null) throw NullPointerException()
+        return res
     }
 
     fun removeShard(shardId: String) {

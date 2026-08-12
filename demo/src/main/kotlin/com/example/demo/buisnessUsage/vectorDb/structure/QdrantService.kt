@@ -19,39 +19,39 @@ class QdrantService(private val repository: QdrantRepository) {
         }
     }
 
-    suspend fun getAllPointsByUid(uid: String): Points.ScrollResponse? {
-        var res: Points.ScrollResponse? = null
-        try {
-            res = repository.getAll(uid)
+    suspend fun getAllPointsByUid(uid: String): List<Points.ScrollResponse> {
+        val res = try {
+            repository.getAll(uid).filterNotNull()
         } catch (e: Exception) {
             decideWhatToThrowQdrant(e)
+            emptyList()
         }
 
-        if (res == null) throw NullPointerException()
+        if (res.isEmpty()) throw NullPointerException("No responses returned from Qdrant shards")
         return res
     }
 
-    suspend fun getPointsByPayloads(payloads: CollectionPayload) : Points.ScrollResponse? {
-        var res: Points.ScrollResponse? = null
-        try {
-            res = repository.getOneOrMore(payloads)
+    suspend fun getPointsByPayloads(payloads: CollectionPayload): List<Points.ScrollResponse> {
+        val res = try {
+            repository.getOneOrMore(payloads).filterNotNull()
         } catch (e: Exception) {
             decideWhatToThrowQdrant(e)
+            emptyList()
         }
 
-        if (res == null) throw NullPointerException()
+        if (res.isEmpty()) throw NullPointerException("No responses returned from Qdrant shards")
         return res
     }
 
-    suspend fun deleteAllPointsByUid(uid: String) : Points.UpdateResult? {
-        var res: Points.UpdateResult? = null
-        try {
-            res = repository.deleteAll(uid)
+    suspend fun deleteAllPointsByUid(uid: String): List<Points.UpdateResult> {
+        val res = try {
+            repository.deleteAll(uid).filterNotNull()
         } catch (e: Exception) {
             decideWhatToThrowQdrant(e)
+            emptyList()
         }
 
-        if (res == null) throw NullPointerException()
+        if (res.isEmpty()) throw NullPointerException("No responses returned from Qdrant shards")
         return res
     }
 }
