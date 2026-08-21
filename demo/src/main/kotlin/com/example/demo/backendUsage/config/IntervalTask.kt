@@ -2,6 +2,7 @@ package com.example.demo.backendUsage.config
 
 import com.example.demo.backendUsage.redis.structure.ParseShard
 import com.example.demo.backendUsage.redis.structure.RedisService
+import com.google.common.util.concurrent.RateLimiter
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -11,13 +12,13 @@ class IntervalTask(
     private val redisService: RedisService,
     private val restClientBuilderConfig: RestClientBuilderConfig,
     private val activeQdrantConfig: ActiveQdrantConfig,
-    private val taskScheduler: TaskScheduler
+    private val taskScheduler: TaskScheduler,
 ) {
 
     fun start() {
         taskScheduler.scheduleAtFixedRate(
             { runAtFixedRate() },
-            Duration.ofSeconds(10)
+            Duration.ofSeconds(5)
         )
     }
 
