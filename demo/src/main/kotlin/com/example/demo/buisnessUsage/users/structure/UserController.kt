@@ -1,5 +1,6 @@
 package com.example.demo.buisnessUsage.users.structure
 
+import com.example.demo.backendUsage.config.UserRateLimiterConfig
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,10 +18,12 @@ data class UserResponse(val generatedKey: String, val timeCreated: Instant)
 @RestController
 @RequestMapping("/versatile_api/users")
 class UserController(private val userService: UserService,
-    private val httpServlet: HttpServletResponse) {
+    private val httpServlet: HttpServletResponse,
+    private val userRateLimiterConfig: UserRateLimiterConfig) {
 
     @PostMapping
     fun createUser(@RequestBody request: UserRequest) : User? {
+        userRateLimiterConfig.getUserCustomRateLimiter().acquire()
         val user = userService.createUser(
             uid = request.uid
         )
