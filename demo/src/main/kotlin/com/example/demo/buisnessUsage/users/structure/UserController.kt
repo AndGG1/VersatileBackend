@@ -1,5 +1,6 @@
 package com.example.demo.buisnessUsage.users.structure
 
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -15,7 +16,8 @@ data class UserResponse(val generatedKey: String, val timeCreated: Instant)
 
 @RestController
 @RequestMapping("/versatile_api/users")
-class UserController(private val userService: UserService) {
+class UserController(private val userService: UserService,
+    private val httpServlet: HttpServletResponse) {
 
     @PostMapping
     fun createUser(@RequestBody request: UserRequest) : User? {
@@ -23,6 +25,11 @@ class UserController(private val userService: UserService) {
             uid = request.uid
         )
 
+        if (user == null) {
+            httpServlet.status = HttpServletResponse.SC_CONFLICT
+        } else {
+            httpServlet.status = HttpServletResponse.SC_CREATED
+        }
         return user
     }
 
@@ -30,6 +37,12 @@ class UserController(private val userService: UserService) {
     fun getUser(@RequestParam(required = true) uid: String): UserResponse? {
         val returnedUser: Optional<User> = userService.getUser(uid)
 
+        if (returnedUser.isEmpty) {
+            httpServlet.status = HttpServletResponse.SC_NOT_FOUND
+            return null
+        }
+
+        httpServlet.status = HttpServletResponse.SC_FOUND
         return UserResponse(
             generatedKey = returnedUser.get().generatedKey,
             timeCreated = returnedUser.get().timeCreated
