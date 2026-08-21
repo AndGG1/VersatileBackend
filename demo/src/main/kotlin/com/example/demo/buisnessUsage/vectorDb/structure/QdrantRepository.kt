@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 class QdrantRepository(private val vectorClient: VectorClient,
     private val getAllVectorClients: List<QdrantClientConfig>) {
 
-    fun save(pointRequest: QdrantPointRequest) {
+    suspend fun save(pointRequest: QdrantPointRequest): Points.UpdateResult? {
         val getVectorClient = vectorClient.getCurrentVectorClient()
 
         val vectorUnit = Points.Vectors.newBuilder()
@@ -28,7 +28,7 @@ class QdrantRepository(private val vectorClient: VectorClient,
             "product_name" to value(pointRequest.payload.productName)
         )
 
-        getVectorClient.client.upsertAsync(
+        return getVectorClient.client.upsertAsync(
             getVectorClient.collectionName,
             listOf(
             Points.PointStruct.newBuilder()
@@ -36,7 +36,7 @@ class QdrantRepository(private val vectorClient: VectorClient,
                 .setVectors(vectorUnit)
                 .putAllPayload(payloadKeys)
                 .build()
-        ))
+        )).await()
     }
 
 

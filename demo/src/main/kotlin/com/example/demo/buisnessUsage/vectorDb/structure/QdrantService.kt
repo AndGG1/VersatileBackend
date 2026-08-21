@@ -7,16 +7,21 @@ import org.springframework.stereotype.Service
 @Service
 class QdrantService(private val repository: QdrantRepository) {
 
-    fun upsertPoint(pointRequest: QdrantPointRequest) {
+    suspend fun upsertPoint(pointRequest: QdrantPointRequest): Points.UpdateResult? {
+        var res: Points.UpdateResult? = null
+
         try {
             val uid: String = pointRequest.payload.uid
             if (uid.isBlank() || !uid.matches(Regex("^[A-Za-z0-9+/_-]{28}$"))) {
                 throw IllegalArgumentException()
             }
-            repository.save(pointRequest)
+            res = repository.save(pointRequest)
         } catch (e: Exception) {
             decideWhatToThrowQdrant(e)
         }
+
+        if (res == null) throw NullPointerException("No response returned form Qdrant shards")
+        return res
     }
 
     suspend fun getAllPointsByUid(uid: String): List<Points.ScrollResponse> {

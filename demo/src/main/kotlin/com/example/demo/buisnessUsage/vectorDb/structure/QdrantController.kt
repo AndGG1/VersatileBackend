@@ -21,7 +21,7 @@ data class ProductUploadRequest(
 class QdrantController(private val service: QdrantService, private val getCustomRateLimiter: RateLimiter) {
 
     @PostMapping
-    fun upsertPoint(@RequestBody requestBody: ProductUploadRequest) {
+    suspend fun upsertPoint(@RequestBody requestBody: ProductUploadRequest) {
         getCustomRateLimiter.acquire()
 
         val payload = CollectionPayload(requestBody.uid, requestBody.productName)
