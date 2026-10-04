@@ -25,7 +25,7 @@ dependencies {
 
 	// Reactive Streams
 //  implementation("org.reactivestreams:reactive-streams")
-//  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
 	// Qdrant & gRPC Core
 	implementation("io.qdrant:client:1.11.0")

@@ -1,5 +1,4 @@
-// demo/src/main/kotlin/com/example/demo/config/SecurityConfig.kt
-package com.example.demo.backendUsage.config
+package com.example.demo.backendUsage.config.Security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

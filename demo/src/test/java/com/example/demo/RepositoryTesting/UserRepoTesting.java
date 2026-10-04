@@ -26,7 +26,6 @@ public class UserRepoTesting {
     @Test
     public void test_FindById() {
         //Arrange
-        String id = "test_uid";
         User newUser = new User(
                 "test_id",
                 "test_generatedKey",
@@ -38,9 +37,9 @@ public class UserRepoTesting {
         userRepository.save(newUser);
 
         //Assert
-        var res = userRepository.findByUid(id);
+        var res = userRepository.findByUid("test_uid");
         Assertions.assertThat(res).isNotNull();
-        Assertions.assertThat(res.getId()).isEqualTo(id);
+        Assertions.assertThat(res.getId()).isEqualTo("test_id");
         Assertions.assertThat(res.getGeneratedKey()).isEqualTo(newUser.getGeneratedKey());
         Assertions.assertThat(res.getUid()).isEqualTo(newUser.getUid());
     }
