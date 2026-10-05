@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+//Informative Comment: For testing the Model: AAA("Triple A") is used. Any test should be rooting for this Model.
+
 @ExtendWith(MockitoExtension.class)
 public class RedisServiceTest {
 

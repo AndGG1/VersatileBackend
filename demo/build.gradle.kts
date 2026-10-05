@@ -19,13 +19,17 @@ repositories {
 }
 
 dependencies {
+	//Logging
+	// build.gradle.kts (ONLY if you want the Kotlin-native wrapper)
+	implementation("io.github.oshai:kotlin-logging-jvm:6.0.4")
+
 	// Redis Starters
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("redis.clients:jedis")
 
 	// Reactive Streams
 //  implementation("org.reactivestreams:reactive-streams")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
 	// Qdrant & gRPC Core
 	implementation("io.qdrant:client:1.11.0")

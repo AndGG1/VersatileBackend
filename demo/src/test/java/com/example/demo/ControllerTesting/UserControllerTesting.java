@@ -1,9 +1,12 @@
 package com.example.demo.ControllerTesting;
 
+import com.example.demo.backendUsage.config.RateLimiting.UserRateLimiting.UserReadRateLimiterConfig;
+import com.example.demo.backendUsage.config.RateLimiting.UserRateLimiting.UserWriteRateLimiterConfig;
 import com.example.demo.buisnessUsage.users.structure.User;
 import com.example.demo.buisnessUsage.users.structure.UserController;
 import com.example.demo.buisnessUsage.users.structure.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -14,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import com.google.common.util.concurrent.RateLimiter;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,8 +38,21 @@ public class UserControllerTesting {
     @MockitoBean
     private UserService userService;
 
+    @MockitoBean
+    private UserReadRateLimiterConfig userReadRateLimiterConfig;
+
+    @MockitoBean
+    private UserWriteRateLimiterConfig userWriteRateLimiterConfig;
+
     @Autowired
     private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUpRateLimiters() {
+        RateLimiter dummyLimiter = RateLimiter.create(100);
+        Mockito.when(userReadRateLimiterConfig.getUserCustomReadRateLimiter()).thenReturn(dummyLimiter);
+        Mockito.when(userWriteRateLimiterConfig.getUserCustomWriteRateLimiter()).thenReturn(dummyLimiter);
+    }
 
     @Test
     public void test_GETMethod_PositiveCase() throws Exception {
