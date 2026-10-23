@@ -1,5 +1,3 @@
-package com.example.demo.backendUsage.config.Security
-
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -12,7 +10,14 @@ class SecurityConfig {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .authorizeHttpRequests { it.anyRequest().permitAll() }
+            .authorizeHttpRequests { auth ->
+                auth
+                    .requestMatchers("/versatile_api/health").permitAll()
+
+                    .anyRequest().authenticated()
+            }
+            .httpBasic { }
+
         return http.build()
     }
 }
