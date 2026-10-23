@@ -24,7 +24,7 @@ class HealthIntervalTask(
                     log.error(e.message)
                 }
             },
-            Duration.ofMinutes(30)
+            Duration.ofMinutes(20)
         )
     }
 
