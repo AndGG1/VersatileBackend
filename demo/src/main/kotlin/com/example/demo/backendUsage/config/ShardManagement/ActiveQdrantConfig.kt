@@ -1,4 +1,4 @@
-package com.example.demo.backendUsage.config
+package com.example.demo.backendUsage.config.ShardManagement
 
 import io.qdrant.client.QdrantClient
 import io.qdrant.client.QdrantGrpcClient

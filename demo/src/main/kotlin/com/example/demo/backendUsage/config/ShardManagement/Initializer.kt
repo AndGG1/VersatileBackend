@@ -1,5 +1,6 @@
-package com.example.demo.backendUsage.config
+package com.example.demo.backendUsage.config.ShardManagement
 
+import com.example.demo.backendUsage.health.HealthIntervalTask
 import com.example.demo.backendUsage.redis.structure.ParseShard
 import com.example.demo.backendUsage.redis.structure.RedisService
 import org.springframework.beans.factory.annotation.Value
@@ -9,23 +10,27 @@ import org.springframework.stereotype.Component
 
 @Component
 class Initializer(private val redisService: RedisService,
-                  private val intervalTask: IntervalTask) : ApplicationRunner {
+                  private val shardIntervalTask: ShardIntervalTask,
+                  private val healthIntervalTask: HealthIntervalTask) : ApplicationRunner {
 
     @Value("\${qdrant.api.tokens}")
-    private val apiKeys: String? = null
+    private lateinit var apiKeys: String
 
     @Value("\${qdrant.cluster.urls}")
-    private val clusterUrls: String? = null
+    private lateinit var clusterUrls: String
+
+    @Value("\${shards.amount}")
+    private lateinit var amount: String
 
     override fun run(args: ApplicationArguments?) {
-        val apiKeysArr: Array<String?> = apiKeys!!
+        val apiKeysArr: Array<String?> = apiKeys
             .split(", ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 
         val clusterUrlsArr: Array<String?> =
-            clusterUrls!!.split(", "
+            clusterUrls.split(", "
                 .toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 
-        for (cluster in 0..2) {
+        for (cluster in 0..(amount.toInt()-1)) {
             redisService.upsert(
                 ParseShard(
                     cluster.toString(),
@@ -36,6 +41,7 @@ class Initializer(private val redisService: RedisService,
             )
         }
 
-        intervalTask.start()
+        shardIntervalTask.start()
+        healthIntervalTask.start()
     }
 }

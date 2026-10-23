@@ -1,17 +1,22 @@
-package com.example.demo.backendUsage.config
+package com.example.demo.backendUsage.config.ShardManagement
 
+import com.example.demo.backendUsage.config.RestClientBuilderConfig
 import com.example.demo.backendUsage.redis.structure.ParseShard
 import com.example.demo.backendUsage.redis.structure.RedisService
-import com.google.common.util.concurrent.RateLimiter
+import com.example.demo.buisnessUsage.vectorDb.structure.isClusterStillAvailable
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
 import java.time.Duration
 
 @Component
-class IntervalTask(
+class ShardIntervalTask(
     private val redisService: RedisService,
     private val restClientBuilderConfig: RestClientBuilderConfig,
     private val activeQdrantConfig: ActiveQdrantConfig,
+
+    @Qualifier("shardTaskScheduler")
     private val taskScheduler: TaskScheduler,
 ) {
 
@@ -22,15 +27,17 @@ class IntervalTask(
         )
     }
 
+    @Value("\${shards.amount}")
+    private lateinit var amount: String
     fun runAtFixedRate() {
-        for (cluster in 0 .. 2) {
+        for (cluster in 0 .. (amount.toInt()-1)) {
 
             val shardId = "" + cluster
             val shardData = redisService.getShard(shardId)
 
             if (shardData?.isAvailable == true) {
 
-                val availabilityCheck = restClientBuilderConfig.isClusterStillAvailable(
+                val availabilityCheck = isClusterStillAvailable(
                     restClientBuilderConfig.restClientBuilder(),
                     shardData.apiKey,
                     shardData.clusterUrl
@@ -44,7 +51,6 @@ class IntervalTask(
                         false
                     ))
                 } else {
-
                     activeQdrantConfig.upsertCurrentClient(shardData.clusterUrl, shardData.apiKey)
                 }
 
