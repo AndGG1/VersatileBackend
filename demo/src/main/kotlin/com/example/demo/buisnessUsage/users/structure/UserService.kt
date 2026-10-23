@@ -1,12 +1,15 @@
 package com.example.demo.buisnessUsage.users.structure
 
+import com.example.demo.backendUsage.health.NotifierService
+import com.example.demo.backendUsage.log
 import com.example.demo.buisnessUsage.users.errorHandlers.decideWhatToThrowUser
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 import java.util.Optional
 
 @Service
-class UserService(private val userRepository: UserRepository) {
+class UserService(private val userRepository: UserRepository,
+    private val notifierService: NotifierService) {
 
     fun createUser(uid: String): User? {
         if (doesUserExist(uid)) {
@@ -21,6 +24,9 @@ class UserService(private val userRepository: UserRepository) {
             res = userRepository.save(User(uid = uid))
 
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("User Service Error", e.message + "")
+
             decideWhatToThrowUser(e)
         }
 
@@ -37,6 +43,9 @@ class UserService(private val userRepository: UserRepository) {
             res = userRepository.findByUid(uid) != null
 
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("User Service Error", e.message + "")
+
             decideWhatToThrowUser(e)
         }
 
@@ -52,6 +61,9 @@ class UserService(private val userRepository: UserRepository) {
 
             res = Optional.ofNullable(userRepository.findByUid(uid))
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("User Service Error", e.message + "")
+
             decideWhatToThrowUser(e)
         }
 
@@ -66,6 +78,9 @@ class UserService(private val userRepository: UserRepository) {
 
             userRepository.deleteById(uid)
         } catch (e: EmptyResultDataAccessException) {
+            log.error(e.message)
+            notifierService.sendAlert("User Service Error", e.message + "")
+
             decideWhatToThrowUser(e)
         }
     }

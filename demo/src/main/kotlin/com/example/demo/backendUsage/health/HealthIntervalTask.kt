@@ -1,5 +1,6 @@
 package com.example.demo.backendUsage.health
 
+import com.example.demo.backendUsage.log
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
@@ -16,7 +17,13 @@ class HealthIntervalTask(
 
     fun start() {
         taskScheduler.scheduleAtFixedRate(
-            { runAtFixedRate() },
+            {
+                try {
+                    runAtFixedRate()
+                } catch (e: Exception) {
+                    log.error(e.message)
+                }
+            },
             Duration.ofMinutes(30)
         )
     }

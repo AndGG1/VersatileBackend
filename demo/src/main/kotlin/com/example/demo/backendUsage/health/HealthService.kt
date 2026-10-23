@@ -1,5 +1,6 @@
 package com.example.demo.backendUsage.health
 
+import com.example.demo.backendUsage.log
 import com.example.demo.buisnessUsage.vectorDb.structure.QdrantClientConfig
 import com.mongodb.client.MongoClient
 import com.mongodb.lang.NonNull
@@ -30,7 +31,7 @@ data class Status(
 @Service
 class HealthService(private val getAllVectorClients: List<QdrantClientConfig>,
     private val mongoClient: MongoClient,
-    private val redisTemplate: RedisTemplate<String, Any>, ) {
+    private val redisTemplate: RedisTemplate<String, Any>) {
 
     private val dateTimeFormatter = DateTimeFormatter
         .ofPattern("uuuu-MM-dd HH:mm")
@@ -57,6 +58,7 @@ class HealthService(private val getAllVectorClients: List<QdrantClientConfig>,
                         )
                     )
                 } catch (e: Exception) {
+                    log.error(e.message)
                     res.add(Status("Qdrant Shard hosted on: ${it.endpoint}",
                         false,
                         "Couldn't retrieve additional info. as collection is not responsive.")
@@ -76,6 +78,7 @@ class HealthService(private val getAllVectorClients: List<QdrantClientConfig>,
                 "Up to this point(${LocalDateTime.now().format(dateTimeFormatter).toString().replace("T", " ")}), " +
                         "this collection contains ${collection.estimatedDocumentCount()} users.")
         } catch (e: Exception) {
+            log.error(e.message)
             Status("Mongo Cloud Database",
                 false,
                 "Couldn't retrieve additional info. as collection is not responsive.")
@@ -92,7 +95,10 @@ class HealthService(private val getAllVectorClients: List<QdrantClientConfig>,
                 "Up to this point(${LocalDateTime.now().format(dateTimeFormatter).toString().replace("T", " ")})," +
                         " there are ${keys.size} keys stored in your Redis Cache.")
         } catch (e: Exception) {
-            Status("Redis Cache (hosted on Render)", false, "Couldn't retrieve additional information, as cache service is not responsive.")
+            log.error(e.message)
+            Status("Redis Cache (hosted on Render)",
+                false,
+                "Couldn't retrieve additional information, as cache service is not responsive.")
         }
     }
 }

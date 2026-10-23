@@ -1,6 +1,8 @@
 package com.example.demo.backendUsage.config.ShardManagement
 
 import com.example.demo.backendUsage.config.RestClientBuilderConfig
+import com.example.demo.backendUsage.health.NotifierService
+import com.example.demo.backendUsage.log
 import com.example.demo.backendUsage.redis.structure.ParseShard
 import com.example.demo.backendUsage.redis.structure.RedisService
 import com.example.demo.buisnessUsage.vectorDb.structure.isClusterStillAvailable
@@ -18,11 +20,20 @@ class ShardIntervalTask(
 
     @Qualifier("shardTaskScheduler")
     private val taskScheduler: TaskScheduler,
+
+    private val notifierService: NotifierService
 ) {
 
     fun start() {
         taskScheduler.scheduleAtFixedRate(
-            { runAtFixedRate() },
+            {
+                try {
+                    runAtFixedRate()
+                } catch (e: Exception) {
+                    log.error(e.message)
+                    notifierService.sendAlert("Shard Management", e.message + "")
+                }
+            },
             Duration.ofSeconds(5)
         )
     }

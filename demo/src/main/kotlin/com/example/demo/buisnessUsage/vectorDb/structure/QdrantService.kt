@@ -1,11 +1,14 @@
 package com.example.demo.buisnessUsage.vectorDb.structure
 
+import com.example.demo.backendUsage.health.NotifierService
+import com.example.demo.backendUsage.log
 import com.example.demo.buisnessUsage.vectorDb.errorHandlers.decideWhatToThrowQdrant
 import io.qdrant.client.grpc.Points
 import org.springframework.stereotype.Service
 
 @Service
-class QdrantService(private val repository: QdrantRepository) {
+class QdrantService(private val repository: QdrantRepository,
+    private val notifierService: NotifierService) {
 
     suspend fun upsertPoint(pointRequest: QdrantPointRequest): Points.UpdateResult? {
         var res: Points.UpdateResult? = null
@@ -16,8 +19,11 @@ class QdrantService(private val repository: QdrantRepository) {
                 throw IllegalArgumentException()
             }
             res = repository.save(pointRequest)
+
         } catch (e: Exception) {
-            e.printStackTrace()
+            log.error(e.message)
+            notifierService.sendAlert("Qdrant Service Error", e.message + "")
+
             decideWhatToThrowQdrant(e)
         }
 
@@ -28,7 +34,11 @@ class QdrantService(private val repository: QdrantRepository) {
     suspend fun getAllPointsByUid(uid: String): List<Points.ScrollResponse> {
         val res = try {
             repository.getAll(uid).filterNotNull()
+
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("Qdrant Service Error", e.message + "")
+
             decideWhatToThrowQdrant(e)
             emptyList()
         }
@@ -40,7 +50,11 @@ class QdrantService(private val repository: QdrantRepository) {
     suspend fun getPointsByPayloads(payloads: CollectionPayload): List<Points.ScrollResponse> {
         val res = try {
             repository.getOneOrMore(payloads).filterNotNull()
+
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("Qdrant Service Error", e.message + "")
+
             decideWhatToThrowQdrant(e)
             emptyList()
         }
@@ -52,7 +66,11 @@ class QdrantService(private val repository: QdrantRepository) {
     suspend fun deleteAllPointsByUid(uid: String): List<Points.UpdateResult> {
         val res = try {
             repository.deleteAll(uid).filterNotNull()
+
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("Qdrant Service Error", e.message + "")
+
             decideWhatToThrowQdrant(e)
             emptyList()
         }

@@ -1,5 +1,7 @@
 package com.example.demo.backendUsage.redis.structure
 
+import com.example.demo.backendUsage.health.NotifierService
+import com.example.demo.backendUsage.log
 import com.example.demo.backendUsage.redis.errorHandlers.decideWhatToThrowRedis
 import org.springframework.stereotype.Service
 
@@ -11,12 +13,16 @@ data class ParseShard(
 )
 
 @Service
-class RedisService(private val redisRepository: RedisRepository) {
+class RedisService(private val redisRepository: RedisRepository,
+    private val notifierService: NotifierService) {
 
     fun upsert(parseShard: ParseShard) {
         try {
             redisRepository.save(parseShard)
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("Redis Service", e.message + "")
+
             decideWhatToThrowRedis(e)
         }
     }
@@ -26,6 +32,9 @@ class RedisService(private val redisRepository: RedisRepository) {
         try {
             res = redisRepository.findById(shardId)
         } catch (e: Exception){
+            log.error(e.message)
+            notifierService.sendAlert("Redis Service", e.message + "")
+
             decideWhatToThrowRedis(e)
         }
 
@@ -41,6 +50,9 @@ class RedisService(private val redisRepository: RedisRepository) {
                 if (shard?.isAvailable == true) res = shard
             }
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("Redis Service", e.message + "")
+
             decideWhatToThrowRedis(e)
         }
 
@@ -52,6 +64,9 @@ class RedisService(private val redisRepository: RedisRepository) {
         try {
             redisRepository.delete(shardId)
         } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("Redis Service", e.message + "")
+
             decideWhatToThrowRedis(e)
         }
     }

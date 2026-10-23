@@ -1,6 +1,7 @@
 package com.example.demo.backendUsage.config.ShardManagement
 
 import com.example.demo.backendUsage.health.HealthIntervalTask
+import com.example.demo.backendUsage.log
 import com.example.demo.backendUsage.redis.structure.ParseShard
 import com.example.demo.backendUsage.redis.structure.RedisService
 import org.springframework.beans.factory.annotation.Value
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Component
 class Initializer(private val redisService: RedisService,
                   private val shardIntervalTask: ShardIntervalTask,
                   private val healthIntervalTask: HealthIntervalTask) : ApplicationRunner {
-
     @Value("\${qdrant.api.tokens}")
     private lateinit var apiKeys: String
 
@@ -41,7 +41,11 @@ class Initializer(private val redisService: RedisService,
             )
         }
 
-        shardIntervalTask.start()
-        healthIntervalTask.start()
+        try {
+            shardIntervalTask.start()
+            healthIntervalTask.start()
+        } catch (e: Exception) {
+            log.error(e.message)
+        }
     }
 }
