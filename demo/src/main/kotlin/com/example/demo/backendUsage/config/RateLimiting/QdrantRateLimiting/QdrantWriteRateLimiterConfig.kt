@@ -1,4 +1,4 @@
-package com.example.demo.backendUsage.config
+package com.example.demo.backendUsage.config.RateLimiting.QdrantWriteRateLimiterConfig
 
 import com.google.common.util.concurrent.RateLimiter
 import org.springframework.beans.factory.annotation.Value
@@ -6,13 +6,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class RateLimiterConfig {
+class QdrantWriteRateLimiterConfig {
 
-    @Value("\${rate.limit}")
+    @Value("\${qdrant.write.rate.limit}")
     private lateinit var rateLimit: String
 
     @Bean
-    fun getCustomRateLimiter(): RateLimiter {
+    fun getCustomWriteRateLimiter(): RateLimiter {
         return RateLimiter.create(rateLimit.toDouble())
     }
 }

@@ -17,6 +17,7 @@ class QdrantService(private val repository: QdrantRepository) {
             }
             res = repository.save(pointRequest)
         } catch (e: Exception) {
+            e.printStackTrace()
             decideWhatToThrowQdrant(e)
         }
 

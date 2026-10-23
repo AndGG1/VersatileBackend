@@ -1,6 +1,7 @@
 package com.example.demo.buisnessUsage.vectorDb.structure
 
-import com.google.common.util.concurrent.RateLimiter
+import com.example.demo.backendUsage.config.RateLimiting.QdrantRateLimiting.QdrantReadRateLimiterConfig
+import com.example.demo.backendUsage.config.RateLimiting.QdrantWriteRateLimiterConfig.QdrantWriteRateLimiterConfig
 import io.qdrant.client.grpc.Points
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,11 +19,14 @@ data class ProductUploadRequest(
 
 @RestController
 @RequestMapping("/versatile_api/vector_database")
-class QdrantController(private val service: QdrantService, private val getCustomRateLimiter: RateLimiter) {
+class QdrantController(private val service: QdrantService,
+        private val getCustomReadRateLimiterConfig: QdrantReadRateLimiterConfig,
+        private val getCustomWriteRateLimiterConfig: QdrantWriteRateLimiterConfig
+) {
 
     @PostMapping
     suspend fun upsertPoint(@RequestBody requestBody: ProductUploadRequest) {
-        getCustomRateLimiter.acquire()
+        getCustomWriteRateLimiterConfig.getCustomWriteRateLimiter().acquire()
 
         val payload = CollectionPayload(requestBody.uid, requestBody.productName)
         val qdrantRequest = QdrantPointRequest(
@@ -35,7 +39,7 @@ class QdrantController(private val service: QdrantService, private val getCustom
 
     @GetMapping("/getAll")
     suspend fun getAllPoints(@RequestParam uid: String): List<Points.ScrollResponse?> {
-        getCustomRateLimiter.acquire()
+        getCustomReadRateLimiterConfig.getCustomReadRateLimiter().tryAcquire()
 
        return service.getAllPointsByUid(uid)
     }
@@ -43,7 +47,7 @@ class QdrantController(private val service: QdrantService, private val getCustom
     @GetMapping("/getOneOrMore")
     suspend fun getOneOrMorePoints(@RequestParam uid: String,
                                    @RequestParam productName: String): List<Points.ScrollResponse?> {
-        getCustomRateLimiter.acquire()
+        getCustomReadRateLimiterConfig.getCustomReadRateLimiter().tryAcquire()
 
         return service.getPointsByPayloads(
             CollectionPayload(
@@ -54,7 +58,7 @@ class QdrantController(private val service: QdrantService, private val getCustom
 
     @DeleteMapping
     suspend fun deleteAllPoints(@RequestParam uid: String) : List<Points.UpdateResult?> {
-        getCustomRateLimiter.acquire()
+        getCustomReadRateLimiterConfig.getCustomReadRateLimiter().tryAcquire()
 
         return service.deleteAllPointsByUid(uid)
     }
