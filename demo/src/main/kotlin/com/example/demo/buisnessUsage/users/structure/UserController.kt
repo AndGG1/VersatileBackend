@@ -1,6 +1,7 @@
 package com.example.demo.buisnessUsage.users.structure
 
-import com.example.demo.backendUsage.config.UserRateLimiterConfig
+import com.example.demo.backendUsage.config.RateLimiting.UserRateLimiting.UserReadRateLimiterConfig
+import com.example.demo.backendUsage.config.RateLimiting.UserRateLimiting.UserWriteRateLimiterConfig
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,11 +20,13 @@ data class UserResponse(val generatedKey: String, val timeCreated: Instant)
 @RequestMapping("/versatile_api/users")
 class UserController(private val userService: UserService,
     private val httpServlet: HttpServletResponse,
-    private val userRateLimiterConfig: UserRateLimiterConfig) {
+    private val userWriteRateLimiterConfig: UserWriteRateLimiterConfig,
+    private val userReadRateLimiterConfig: UserReadRateLimiterConfig) {
 
     @PostMapping
     fun createUser(@RequestBody request: UserRequest) : User? {
-        userRateLimiterConfig.getUserCustomRateLimiter().acquire()
+        userWriteRateLimiterConfig.getUserCustomWriteRateLimiter().acquire()
+
         val user = userService.createUser(
             uid = request.uid
         )
@@ -38,8 +41,9 @@ class UserController(private val userService: UserService,
 
     @GetMapping
     fun getUser(@RequestParam(required = true) uid: String): UserResponse? {
-        val returnedUser: Optional<User> = userService.getUser(uid)
+        userReadRateLimiterConfig.getUserCustomReadRateLimiter().tryAcquire()
 
+        val returnedUser: Optional<User> = userService.getUser(uid)
         if (returnedUser.isEmpty) {
             httpServlet.status = HttpServletResponse.SC_NOT_FOUND
             return null
@@ -54,6 +58,8 @@ class UserController(private val userService: UserService,
 
     @DeleteMapping
     fun removeUser(@RequestBody request: UserRequest) {
+        userReadRateLimiterConfig.getUserCustomReadRateLimiter().tryAcquire()
+
         userService.removeUser(request.uid)
     }
 }
