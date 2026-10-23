@@ -83,7 +83,7 @@ public class UserServiceTesting {
         );
         when(userRepository.findByUid(Mockito.any(String.class))).thenReturn(defaultUser);
 
-        //Apply
+        //Act
         Boolean doesUserExist = userService.doesUserExist(validTestUid);
 
         //Assert
@@ -123,7 +123,7 @@ public class UserServiceTesting {
         );
         when(userRepository.findByUid(Mockito.any(String.class))).thenReturn(defaultUser);
 
-        //Apply
+        //Act
         Optional<User> optionalUser = userService.getUser(validTestUid);
         User getUser = optionalUser.orElse(null);
 

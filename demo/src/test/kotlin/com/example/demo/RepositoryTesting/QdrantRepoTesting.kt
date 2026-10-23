@@ -57,7 +57,7 @@ class QdrantRepoTesting {
 
         qdrantClient.deleteAsync(COLLECTION_NAME, Points.Filter.getDefaultInstance()).get()
 
-        val config = QdrantClientConfig(qdrantClient, COLLECTION_NAME)
+        val config = QdrantClientConfig(qdrantClient, COLLECTION_NAME, "TEST_ENDPOINT")
         Mockito.`when`<QdrantClientConfig?>(vectorClient.getCurrentVectorClient()).thenReturn(config)
 
         qdrantRepository = QdrantRepository(vectorClient, listOf(config))
