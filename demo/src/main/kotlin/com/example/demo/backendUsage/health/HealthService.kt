@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.ResolverStyle
+import java.util.concurrent.TimeUnit
 
 data class Status(
     @NonNull val cloudServiceName: String,
@@ -47,7 +48,7 @@ class HealthService(private val getAllVectorClients: List<QdrantClientConfig>,
         val res = mutableListOf<Status>()
             getAllVectorClients.forEach { it ->
                 try {
-                    val collectionInfo = it.client.getCollectionInfoAsync(it.collectionName).get()
+                    val collectionInfo = it.client.getCollectionInfoAsync(it.collectionName).get(30, TimeUnit.SECONDS)
                     res.add(
                         Status(
                             "Qdrant Shard hosted on: ${it.endpoint}",
@@ -70,6 +71,7 @@ class HealthService(private val getAllVectorClients: List<QdrantClientConfig>,
 
     fun checkMongo() : Status {
         return try {
+            mongoClient
             val database = mongoClient.getDatabase(databaseName)
             val collection = database.getCollection(collectionName)
 
@@ -85,20 +87,29 @@ class HealthService(private val getAllVectorClients: List<QdrantClientConfig>,
         }
     }
 
-    fun checkRedis() : Status {
+    fun checkRedis(): Status {
         return try {
-            val availability = redisTemplate.connectionFactory?.connection?.ping()
+            val isAlive = redisTemplate.execute { connection ->
+                connection.ping() != null
+            } ?: false
 
-            val keys: Set<String> = redisTemplate.keys("*")
-            Status("Redis Cache (hosted on Render)",
-                availability != null,
-                "Up to this point(${LocalDateTime.now().format(dateTimeFormatter).toString().replace("T", " ")})," +
-                        " there are ${keys.size} keys stored in your Redis Cache.")
+            val dbSize = redisTemplate.execute { connection ->
+                connection.serverCommands().dbSize()
+            } ?: 0
+
+            Status(
+                "Redis Cache (hosted on Render)",
+                isAlive,
+                "Up to this point(${LocalDateTime.now().format(dateTimeFormatter)}), " +
+                        "there are roughly $dbSize keys stored in your Redis Cache."
+            )
         } catch (e: Exception) {
-            log.error(e.message)
-            Status("Redis Cache (hosted on Render)",
+            log.error("Redis health check failed: ${e.message}", e)
+            Status(
+                "Redis Cache (hosted on Render)",
                 false,
-                "Couldn't retrieve additional information, as cache service is not responsive.")
+                "Couldn't retrieve additional information, as cache service is not responsive."
+            )
         }
     }
 }

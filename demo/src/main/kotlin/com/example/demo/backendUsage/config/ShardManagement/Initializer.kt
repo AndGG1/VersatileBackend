@@ -42,6 +42,8 @@ class Initializer(private val redisService: RedisService,
         }
 
         try {
+            log.info("INTERNAL BACKEND OPERATION: Shard Management and Health Management are being created and started.")
+
             shardIntervalTask.start()
             healthIntervalTask.start()
         } catch (e: Exception) {

@@ -22,6 +22,7 @@ class HealthIntervalTask(
                     runAtFixedRate()
                 } catch (e: Exception) {
                     log.error(e.message)
+                    notifierService.sendAlert("Health Service Error", e.message + "")
                 }
             },
             Duration.ofMinutes(20)
@@ -29,6 +30,8 @@ class HealthIntervalTask(
     }
 
     fun runAtFixedRate() {
+        log.info("INTERNAL BACKEND OPERATION: Health check performed.")
+
         val qdrantStatus = healthService.checkQdrant()
         val mongoStatus = healthService.checkMongo()
         val redisStatus = healthService.checkRedis()

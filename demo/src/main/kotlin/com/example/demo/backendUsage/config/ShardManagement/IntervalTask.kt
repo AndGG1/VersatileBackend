@@ -31,7 +31,7 @@ class ShardIntervalTask(
                     runAtFixedRate()
                 } catch (e: Exception) {
                     log.error(e.message)
-                    notifierService.sendAlert("Shard Management", e.message + "")
+                    notifierService.sendAlert("Shard Management Error", e.message + "")
                 }
             },
             Duration.ofSeconds(5)
@@ -41,8 +41,10 @@ class ShardIntervalTask(
     @Value("\${shards.amount}")
     private lateinit var amount: String
     fun runAtFixedRate() {
-        for (cluster in 0 .. (amount.toInt()-1)) {
+        log.info("INTERNAL BACKEND OPERATION: Shard Management has performed a check " +
+                "to decide whether requests will be redirected towards a new Shard.")
 
+        for (cluster in 0 .. (amount.toInt()-1)) {
             val shardId = "" + cluster
             val shardData = redisService.getShard(shardId)
 
