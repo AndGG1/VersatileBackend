@@ -36,7 +36,7 @@ class UserController(private val userService: UserService,
             httpServlet.status = HttpServletResponse.SC_CREATED
         }
 
-        return userDTOMapper.apply(user)
+        return userDTOMapper.apply(user ?: User("null", "null", Instant.now()))
     }
 
     @GetMapping
@@ -46,7 +46,7 @@ class UserController(private val userService: UserService,
         return userService.getAllUsers()
             .stream()
             .map {
-                user -> userDTOMapper.apply(user)
+                user -> userDTOMapper.apply(user ?: User("null", "null", Instant.now()))
             }
             .toList()
     }

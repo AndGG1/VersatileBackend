@@ -1,10 +1,9 @@
-package com.example.demo.buisnessUsage.users.structure.DTO;
+package com.example.demo.buisnessUsage.users.structure.DTO
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull
+import java.time.Instant
 
-import java.time.Instant;
-
-public record UserDTO(
-        @NotNull String uid,
-        @NotNull Instant timeCreated
-) {}
+data class UserDTO(
+    @field:NotNull val uid: String,
+    @field:NotNull val timeCreated: Instant
+)

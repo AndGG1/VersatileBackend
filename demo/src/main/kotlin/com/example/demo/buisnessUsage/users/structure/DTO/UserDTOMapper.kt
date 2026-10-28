@@ -1,27 +1,19 @@
-package com.example.demo.buisnessUsage.users.structure.DTO;
+package com.example.demo.buisnessUsage.users.structure.DTO
 
-import com.example.demo.buisnessUsage.users.structure.User;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.function.Function;
+import com.example.demo.buisnessUsage.users.structure.User
+import org.springframework.stereotype.Service
+import java.util.function.Function
 
 @Service
-public class UserDTOMapper implements Function<User, UserDTO> {
+class UserDTOMapper : Function<User, UserDTO> {
 
-    @Override
-    public UserDTO apply(User user) {
-        if (user == null) {
-            user = new User(
-                    "null",
-                    "null",
-                    Instant.now()
-            );
-        }
+    override fun apply(t: User): UserDTO {
+        val resolvedUser = t
 
-        return new UserDTO(
-                user.getUid(),
-                user.getTimeCreated()
-        );
+        return UserDTO(
+            uid = resolvedUser.uid,
+            timeCreated = resolvedUser.timeCreated
+        )
     }
+
 }
