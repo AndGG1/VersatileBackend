@@ -10,7 +10,6 @@ data class User(
     @Id
     val id: String? = null,
 
-    val generatedKey: String = UUID.randomUUID().toString(),
     val uid: String,
     val timeCreated: Instant = Instant.now()
 )

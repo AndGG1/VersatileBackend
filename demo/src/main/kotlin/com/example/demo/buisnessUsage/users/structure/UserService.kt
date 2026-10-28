@@ -71,6 +71,21 @@ class UserService(private val userRepository: UserRepository,
         return res
     }
 
+    fun getAllUsers(): List<User?> {
+        var res: List<User?>? = null
+        try {
+            res = userRepository.findAll()
+        } catch (e: Exception) {
+            log.error(e.message)
+            notifierService.sendAlert("User Service Error", e.message + "")
+
+            decideWhatToThrowUser(e)
+        }
+
+        if (res == null) throw NullPointerException()
+        return res
+    }
+
     fun removeUser(uid: String) {
         try {
             if (uid.isBlank() || !uid.matches(Regex("^[A-Za-z0-9+/_-]{28}$")))
