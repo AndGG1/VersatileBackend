@@ -41,7 +41,7 @@ class QdrantController(private val service: QdrantService,
     suspend fun getAllPoints(@RequestParam uid: String): List<Points.ScrollResponse?> {
         getCustomReadRateLimiterConfig.getCustomReadRateLimiter().tryAcquire()
 
-       return service.getAllPointsByUid(uid)
+        return service.getAllPointsByUid(uid)
     }
 
     @GetMapping("/getOneOrMore")

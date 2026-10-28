@@ -24,7 +24,6 @@ class RedisRepository(private val redisTemplate: RedisTemplate<String, Any>) {
     private val HASH_KEY: String = "column_1"
 
     fun save(parseShard: ParseShard) {
-        println("saved")
         val key = "$HASH_KEY:${parseShard.shardId}"
         val value = ShardData(
             parseShard.clusterUrl,
@@ -36,7 +35,6 @@ class RedisRepository(private val redisTemplate: RedisTemplate<String, Any>) {
     }
 
     fun findById(shardId: String): ShardData? {
-        println("looked for $shardId")
         val key = "$HASH_KEY:$shardId"
 
         return redisTemplate.opsForHash<String, ShardData>().get(key, HASH_KEY)
