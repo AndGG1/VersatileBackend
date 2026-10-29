@@ -39,6 +39,7 @@ class UserController(private val userService: UserService,
         return userDTOMapper.apply(user ?: User("null", "null", Instant.now()))
     }
 
+    //Informative Comment: This endpoint is for developer testing; users will not use it.
     @GetMapping
     fun getAllUsers() : List<UserDTO> {
         userReadRateLimiterConfig.getUserCustomReadRateLimiter().tryAcquire()
@@ -51,6 +52,7 @@ class UserController(private val userService: UserService,
             .toList()
     }
 
+    //Informative Comment: This endpoint is for developer testing; users will not use it.
     @DeleteMapping
     fun removeUser(@RequestBody request: UserRequest) {
         userReadRateLimiterConfig.getUserCustomReadRateLimiter().tryAcquire()

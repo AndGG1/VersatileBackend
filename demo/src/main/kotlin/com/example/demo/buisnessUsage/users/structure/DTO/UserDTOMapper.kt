@@ -15,5 +15,4 @@ class UserDTOMapper : Function<User, UserDTO> {
             timeCreated = resolvedUser.timeCreated
         )
     }
-
 }

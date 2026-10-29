@@ -2,6 +2,8 @@ package com.example.demo.buisnessUsage.vectorDb.structure
 
 import com.example.demo.backendUsage.config.RateLimiting.QdrantRateLimiting.QdrantReadRateLimiterConfig
 import com.example.demo.backendUsage.config.RateLimiting.QdrantWriteRateLimiterConfig.QdrantWriteRateLimiterConfig
+import com.example.demo.buisnessUsage.vectorDb.structure.DTO.PointResponseDTOMapper
+import com.example.demo.buisnessUsage.vectorDb.structure.DTO.PointResponseDto
 import io.qdrant.client.grpc.Points
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,7 +23,8 @@ data class ProductUploadRequest(
 @RequestMapping("/versatile_api/vector_database")
 class QdrantController(private val service: QdrantService,
         private val getCustomReadRateLimiterConfig: QdrantReadRateLimiterConfig,
-        private val getCustomWriteRateLimiterConfig: QdrantWriteRateLimiterConfig
+        private val getCustomWriteRateLimiterConfig: QdrantWriteRateLimiterConfig,
+        private val pointResponseDTOMapper: PointResponseDTOMapper
 ) {
 
     @PostMapping
@@ -37,23 +40,35 @@ class QdrantController(private val service: QdrantService,
         service.upsertPoint(qdrantRequest)
     }
 
+    //Informative Comment: This endpoint is for developer testing; users will not use it.
     @GetMapping("/getAll")
-    suspend fun getAllPoints(@RequestParam uid: String): List<Points.ScrollResponse?> {
+    suspend fun getAllPoints(@RequestParam uid: String): List<PointResponseDto> {
         getCustomReadRateLimiterConfig.getCustomReadRateLimiter().tryAcquire()
 
         return service.getAllPointsByUid(uid)
+            .stream()
+            .map {
+                scrollResp ->  pointResponseDTOMapper.apply(scrollResp)
+            }.toList()
     }
 
+    //Informative Comment: This endpoint is for developer testing; users will not use it.
     @GetMapping("/getOneOrMore")
     suspend fun getOneOrMorePoints(@RequestParam uid: String,
-                                   @RequestParam productName: String): List<Points.ScrollResponse?> {
+                                   @RequestParam productName: String): List<PointResponseDto> {
         getCustomReadRateLimiterConfig.getCustomReadRateLimiter().tryAcquire()
 
-        return service.getPointsByPayloads(
+        val scrollResponses = service.getPointsByPayloads(
             CollectionPayload(
                 uid,
                 productName)
         )
+        return scrollResponses
+            .stream()
+            .map {
+                scrollResp -> pointResponseDTOMapper.apply(scrollResp)
+            }
+            .toList()
     }
 
     @DeleteMapping
