@@ -13,7 +13,6 @@ public class UserEntityTesting {
             new User(
                     null,
                     null,
-                    null,
                     null
             );
         });

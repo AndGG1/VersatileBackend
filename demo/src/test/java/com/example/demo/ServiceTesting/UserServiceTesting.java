@@ -1,5 +1,6 @@
 package com.example.demo.ServiceTesting;
 
+import com.example.demo.backendUsage.health.NotifierService;
 import com.example.demo.buisnessUsage.users.structure.User;
 import com.example.demo.buisnessUsage.users.structure.UserRepository;
 import com.example.demo.buisnessUsage.users.structure.UserService;
@@ -26,6 +27,9 @@ public class UserServiceTesting {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private NotifierService notifierService;
+
     @InjectMocks
     private UserService userService;
 
@@ -37,7 +41,7 @@ public class UserServiceTesting {
     @Test
     public void test_CreateUser_Success() {
         // Arrange
-        User expectedUser = new User("id", "key", validTestUid, Instant.now());
+        User expectedUser = new User("id", "uid", Instant.now());
 
         when(userRepository.save(Mockito.any(User.class))).thenReturn(expectedUser);
 
@@ -77,8 +81,7 @@ public class UserServiceTesting {
         //Arrange
         User defaultUser = new User(
                 "default_id",
-                "default_generatedKey",
-                validTestUid,
+                "default_uid",
                 Instant.now()
         );
         when(userRepository.findByUid(Mockito.any(String.class))).thenReturn(defaultUser);
@@ -117,8 +120,7 @@ public class UserServiceTesting {
         //Arrange
         User defaultUser = new User(
                 "default_id",
-                "default_generatedKey",
-                validTestUid,
+                "default_uid",
                 Instant.now()
         );
         when(userRepository.findByUid(Mockito.any(String.class))).thenReturn(defaultUser);

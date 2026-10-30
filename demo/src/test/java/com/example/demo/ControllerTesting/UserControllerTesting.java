@@ -2,6 +2,8 @@ package com.example.demo.ControllerTesting;
 
 import com.example.demo.backendUsage.config.RateLimiting.UserRateLimiting.UserReadRateLimiterConfig;
 import com.example.demo.backendUsage.config.RateLimiting.UserRateLimiting.UserWriteRateLimiterConfig;
+import com.example.demo.buisnessUsage.users.structure.DTO.UserDTO;
+import com.example.demo.buisnessUsage.users.structure.DTO.UserDTOMapper;
 import com.example.demo.buisnessUsage.users.structure.User;
 import com.example.demo.buisnessUsage.users.structure.UserController;
 import com.example.demo.buisnessUsage.users.structure.UserService;
@@ -24,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Instant;
-import java.util.Optional;
+import java.util.List;
 
 //Informative Comment: For testing the Model: AAA("Triple A") is used. Any test should be rooting for this Model.
 
@@ -32,6 +34,7 @@ import java.util.Optional;
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTesting {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -44,6 +47,9 @@ public class UserControllerTesting {
     @MockitoBean
     private UserWriteRateLimiterConfig userWriteRateLimiterConfig;
 
+    @MockitoBean
+    private UserDTOMapper userDTOMapper;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -55,106 +61,95 @@ public class UserControllerTesting {
     }
 
     @Test
-    public void test_GETMethod_PositiveCase() throws Exception {
-        //Arrange
-        User mockUser = new User(
-                "default_id",
-                "default_generatedKey",
-                "default_uid",
-                Instant.now()
-        );
-        Mockito.when(userService.getUser(Mockito.any(String.class))).thenReturn(Optional.of(mockUser));
+    public void test_GetAllUsers_PositiveCase() throws Exception {
+        // Arrange
+        Instant now = Instant.now();
+        User mockUser = new User("default_id", "default_uid", now);
+        UserDTO mockUserDTO = new UserDTO("default_uid", now);
 
-        //Act
-        var result = mockMvc.perform(get("/versatile_api/users").param("uid", "default_uid"));
+        Mockito.when(userService.getAllUsers()).thenReturn(List.of(mockUser));
+        Mockito.when(userDTOMapper.apply(Mockito.any(User.class))).thenReturn(mockUserDTO);
 
-        //Assert
-        result.andExpect(status().isFound())
-                .andExpect(jsonPath("$.generatedKey").value(mockUser.getGeneratedKey()))
+        // Act
+        var result = mockMvc.perform(get("/versatile_api/users"));
+
+        // Assert
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].uid").value("default_uid"))
+                .andExpect(jsonPath("$[0].timeCreated").exists());
+    }
+
+    @Test
+    public void test_GetAllUsers_EmptyCase() throws Exception {
+        // Arrange
+        Mockito.when(userService.getAllUsers()).thenReturn(List.of());
+
+        // Act
+        var result = mockMvc.perform(get("/versatile_api/users"));
+
+        // Assert
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    public void test_POSTMethod_PositiveCase() throws Exception {
+        // Arrange
+        Instant now = Instant.now();
+        User responseUser = new User("default_id", "default_uid", now);
+        UserDTO responseUserDTO = new UserDTO("default_uid", now);
+
+        Mockito.when(userService.createUser(Mockito.any(String.class))).thenReturn(responseUser);
+        Mockito.when(userDTOMapper.apply(Mockito.any(User.class))).thenReturn(responseUserDTO);
+
+        // Act
+        var result = mockMvc.perform(post("/versatile_api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\n" +
+                        "    \"uid\": \"%s\"\n" +
+                        "}".formatted(responseUser.getUid())));
+
+        // Assert
+        result.andExpect(status().isCreated())
+                .andExpect(jsonPath("$.uid").value(responseUserDTO.getUid()))
                 .andExpect(jsonPath("$.timeCreated").exists());
     }
 
     @Test
-    public void test_GETMethod_NegativeCase() throws Exception {
-        //Arrange
-        User mockUser = new User(
-                "default_id",
-                "default_generatedKey",
-                "default_uid",
-                Instant.now()
-        );
-        Mockito.when(userService.getUser(Mockito.any(String.class))).thenReturn(Optional.empty());
+    public void test_POSTMethod_NegativeCase_Conflict() throws Exception {
+        // Arrange
+        String requestUid = "default_uid";
+        UserDTO fallbackDTO = new UserDTO("null", Instant.now());
 
-        //Act
-        var result = mockMvc.perform(get("/versatile_api/users").param("uid", mockUser.getUid()));
+        // Simulating user already exists -> userService returns null
+        Mockito.when(userService.createUser(Mockito.any(String.class))).thenReturn(null);
+        Mockito.when(userDTOMapper.apply(Mockito.any(User.class))).thenReturn(fallbackDTO);
 
-        //Assert
-        result.andExpect(status().isNotFound());
-    }
-
-
-    @Test
-    public void test_POSTMethod_PositiveCase() throws Exception {
-        //Arrange
-        User responseUser = new User(
-                "default_id",
-                "default_generatedKey",
-                "default_uid",
-                Instant.now()
-        );
-        Mockito.when(userService.createUser(Mockito.any(String.class))).thenReturn(responseUser);
-
-        //Act
+        // Act
         var result = mockMvc.perform(post("/versatile_api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\n" +
                         "    \"uid\": \"%s\"\n" +
-                        "}".formatted(responseUser.getUid())));
+                        "}".formatted(requestUid)));
 
-        //Assert
-        result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(responseUser.getId()))
-                .andExpect(jsonPath("$.generatedKey").value(responseUser.getGeneratedKey()))
-                .andExpect(jsonPath("$.uid").value(responseUser.getUid()))
-                .andExpect(jsonPath("timeCreated").value(responseUser.getTimeCreated().toString()));
-    }
-
-    @Test
-    public void test_POSTMethod_NegativeCase() throws Exception {
-        //Arrange
-        User responseUser = new User(
-                "default_id",
-                "default_generatedKey",
-                "default_uid",
-                Instant.now()
-        );
-        Mockito.when(userService.doesUserExist(Mockito.any(String.class))).thenReturn(true);
-        Mockito.when(userService.createUser(Mockito.any(String.class))).thenCallRealMethod();
-
-        //Act
-        var result = mockMvc.perform(post("/versatile_api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\n" +
-                        "    \"uid\": \"%s\"\n" +
-                        "}".formatted(responseUser.getUid())));
-
-        //Assert
+        // Assert
         result.andExpect(status().isConflict());
     }
 
     @Test
     public void test_DELETEMethod_PositiveCase() throws Exception {
-        //Arrange
+        // Arrange
         String requestUid = "default_uid";
 
-        //Act
+        // Act
         var result = mockMvc.perform(delete("/versatile_api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\n" +
                         "    \"uid\": \"%s\"\n" +
                         "}".formatted(requestUid)));
 
-        //Assert
+        // Assert
         result.andExpect(status().isOk());
     }
 }

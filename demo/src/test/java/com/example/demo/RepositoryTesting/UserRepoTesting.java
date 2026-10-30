@@ -28,7 +28,6 @@ public class UserRepoTesting {
         //Arrange
         User newUser = new User(
                 "test_id",
-                "test_generatedKey",
                 "test_uid",
                 Instant.now()
         );
@@ -40,7 +39,6 @@ public class UserRepoTesting {
         var res = userRepository.findByUid("test_uid");
         Assertions.assertThat(res).isNotNull();
         Assertions.assertThat(res.getId()).isEqualTo("test_id");
-        Assertions.assertThat(res.getGeneratedKey()).isEqualTo(newUser.getGeneratedKey());
         Assertions.assertThat(res.getUid()).isEqualTo(newUser.getUid());
     }
 
@@ -49,7 +47,6 @@ public class UserRepoTesting {
         //Arrange
         User newUser = new User(
                 "test_id",
-                "test_generatedKey",
                 "test_uid",
                 Instant.now()
         );
@@ -60,7 +57,6 @@ public class UserRepoTesting {
         //Assert
         Assertions.assertThat(res).isNotNull();
         Assertions.assertThat(res.getId()).isEqualTo(newUser.getId());
-        Assertions.assertThat(res.getGeneratedKey()).isEqualTo(newUser.getGeneratedKey());
         Assertions.assertThat(res.getUid()).isEqualTo(newUser.getUid());
     }
 
@@ -69,7 +65,6 @@ public class UserRepoTesting {
         //Arrange
         User defaultUser = new User(
                 "default_id",
-                "default_generatedKey",
                 "default_uid",
                 Instant.now()
         );
