@@ -4,6 +4,8 @@ import com.example.demo.backendUsage.config.RateLimiting.QdrantRateLimiting.Qdra
 import com.example.demo.backendUsage.config.RateLimiting.QdrantWriteRateLimiterConfig.QdrantWriteRateLimiterConfig
 import com.example.demo.buisnessUsage.vectorDb.structure.DTO.PointResponseDTOMapper
 import com.example.demo.buisnessUsage.vectorDb.structure.DTO.PointResponseDto
+import com.example.demo.buisnessUsage.vectorDb.structure.DTO.UpdatedPointResponseDTO
+import com.example.demo.buisnessUsage.vectorDb.structure.DTO.UpdatedPointResponseDTOMapper
 import io.qdrant.client.grpc.Points
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -24,7 +26,8 @@ data class ProductUploadRequest(
 class QdrantController(private val service: QdrantService,
         private val getCustomReadRateLimiterConfig: QdrantReadRateLimiterConfig,
         private val getCustomWriteRateLimiterConfig: QdrantWriteRateLimiterConfig,
-        private val pointResponseDTOMapper: PointResponseDTOMapper
+        private val pointResponseDTOMapper: PointResponseDTOMapper,
+        private val updatedPointResponseDTOMapper: UpdatedPointResponseDTOMapper
 ) {
 
     @PostMapping
@@ -72,9 +75,12 @@ class QdrantController(private val service: QdrantService,
     }
 
     @DeleteMapping
-    suspend fun deleteAllPoints(@RequestParam uid: String) : List<Points.UpdateResult?> {
+    suspend fun deleteAllPoints(@RequestParam uid: String): List<UpdatedPointResponseDTO> {
         getCustomReadRateLimiterConfig.getCustomReadRateLimiter().tryAcquire()
 
         return service.deleteAllPointsByUid(uid)
+            .stream()
+            .map { updateResult -> updatedPointResponseDTOMapper.apply(updateResult) }
+            .toList()
     }
 }

@@ -18,3 +18,11 @@ class PointResponseDTOMapper : Function<Points.ScrollResponse, PointResponseDto>
         )
     }
 }
+
+@Service
+class UpdatedPointResponseDTOMapper: Function<Points.UpdateResult, UpdatedPointResponseDTO> {
+
+    override fun apply(t: Points.UpdateResult): UpdatedPointResponseDTO {
+        return UpdatedPointResponseDTO(t.status.name)
+    }
+}

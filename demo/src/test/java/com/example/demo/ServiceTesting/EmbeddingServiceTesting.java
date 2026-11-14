@@ -20,6 +20,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 //Informative Comment: For testing the Model: AAA("Triple A") is used. Any test should be rooting for this Model.
 
+//TODO: Fix
 @RestClientTest(EmbeddingService.class)
 @Import(ServiceResponseErrorHandlerKt.class)
 public class EmbeddingServiceTesting {

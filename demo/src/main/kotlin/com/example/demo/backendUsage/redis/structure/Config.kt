@@ -3,6 +3,7 @@ package com.example.demo.backendUsage.redis.structure
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration
@@ -20,6 +21,7 @@ class RedisConfig {
     lateinit var redisEndpoint: String
 
     @Bean
+    @Primary
     fun jedisConnectionFactory(): JedisConnectionFactory {
         val uri = URI.create(redisEndpoint)
 
@@ -61,6 +63,7 @@ class RedisConfig {
     }
 
     @Bean
+    @Primary
     fun redisTemplate(connectionFactory: JedisConnectionFactory): RedisTemplate<String, Any> {
         val template = RedisTemplate<String, Any>()
         template.connectionFactory = connectionFactory
