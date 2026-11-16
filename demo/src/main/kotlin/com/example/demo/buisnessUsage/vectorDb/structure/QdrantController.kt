@@ -6,7 +6,6 @@ import com.example.demo.buisnessUsage.vectorDb.structure.DTO.PointResponseDTOMap
 import com.example.demo.buisnessUsage.vectorDb.structure.DTO.PointResponseDto
 import com.example.demo.buisnessUsage.vectorDb.structure.DTO.UpdatedPointResponseDTO
 import com.example.demo.buisnessUsage.vectorDb.structure.DTO.UpdatedPointResponseDTOMapper
-import io.qdrant.client.grpc.Points
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping

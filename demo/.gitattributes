@@ -1,3 +1,5 @@
+demo/**/*.kt linguist-detectable=true
+demo/**/*.java linguist-detectable=true
 /gradlew text eol=lf
 *.bat text eol=crlf
 *.jar binary
