@@ -1,2 +1,4 @@
+demo/**/*.kt linguist-detectable=true
+demo/**/*.java linguist-detectable=true
 * text=auto
 *.kt linguist-language=Kotlin
